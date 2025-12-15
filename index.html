@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Who's That Pokémon?</title>
+  <style>
+    body {
+      background: #FAF9F6;
+      color: rgb(0, 0, 0);
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    img {
+      width: 80%;
+      max-width: 300px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+    input, button {
+      padding: 12px;
+      font-size: 18px;
+      margin: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    input {
+      width: 60%;
+      max-width: 200px;
+    }
+    button {
+      cursor: pointer;
+      background-color: #ffcb05;
+      border: none;
+    }
+    button:hover {
+      background-color: #f5b700;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Who's That Pokémon?</h1>
+  <img id="pokemonImg" />
+  <div>
+    <input id="guess" placeholder="Enter Pokémon name" />
+    <button onclick="checkGuess()">Guess</button>
+  </div>
+  <p id="result"></p>
+  <button onclick="nextPokemon()">Next</button>
+
+  <script>
+    const pokemonList = [
+      "Diglett",
+      // Add more Pokémon here
+    ];
+
+    let currentPokemon = "";
+    let silhouetteIndex = 0;
+    let currentSuffix = "";
+
+    function nextPokemon() {
+      let next;
+      do {
+        next = pokemonList[Math.floor(Math.random() * pokemonList.length)];
+      } while (next === currentPokemon && pokemonList.length > 1);
+
+      currentPokemon = next;
+
+      silhouetteIndex = Math.floor(Math.random() * 4);
+      currentSuffix = silhouetteIndex === 0 ? "" : `_${silhouetteIndex}`;
+
+      document.getElementById("pokemonImg").src =
+        `Pokemon_Renders/${currentPokemon}/silhouettes/${currentPokemon}${currentSuffix}.png`;
+
+      document.getElementById("result").textContent = "";
+      document.getElementById("guess").value = "";
+      document.getElementById("guess").focus();
+    }
+
+    function checkGuess() {
+      const guess = document.getElementById("guess").value.trim().toLowerCase();
+
+      if (guess === currentPokemon.toLowerCase()) {
+        document.getElementById("pokemonImg").src =
+          `Pokemon_Renders/${currentPokemon}/${currentPokemon}${currentSuffix}.png`;
+        document.getElementById("result").textContent = "Correct!";
+      } else {
+        document.getElementById("result").textContent = "Try again!";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      nextPokemon();
+      document.getElementById("guess").addEventListener("keydown", function(event) {
+        if (event.key === "Enter") checkGuess();
+      });
+    });
+
+  </script>
+
+</body>
+</html>
