@@ -92,11 +92,10 @@
       padding: 5px 10px;
       border-radius: 10px;
       font-weight: bold;
-      opacity: 0; /* hidden initially */
+      opacity: 0;
       pointer-events: none;
     }
 
-    /* Badge pop animation */
     @keyframes badgePop {
       0% { transform: scale(0); opacity: 1; }
       50% { transform: scale(1.4); }
@@ -107,7 +106,6 @@
       animation: badgePop 0.6s forwards;
     }
 
-    /* Shake for wrong guess */
     @keyframes shake {
       0% { transform: translateX(0); }
       25% { transform: translateX(-5px); }
@@ -120,7 +118,6 @@
       animation: shake 0.4s;
     }
 
-    /* Confetti canvas */
     #confetti-canvas {
       position: fixed;
       top: 0;
@@ -156,8 +153,8 @@
 
   <div style="display: flex; gap: 0.5em; align-items: center; margin-bottom: 1em;">
     <input id="guess" placeholder="Enter Pokémon name" />
-    <button onclick="checkGuess()">Guess</button>
-    <button onclick="nextPokemon()">Next</button>
+    <button id="guessButton">Guess</button>
+    <button id="nextButton">Skip</button>
   </div>
 
   <canvas id="confetti-canvas"></canvas>
@@ -169,22 +166,23 @@
     let currentSuffix = "";
 
     let streak = 0;
-    let bestStreak = localStorage.getItem("bestStreak")
-      ? parseInt(localStorage.getItem("bestStreak"))
+    let bestStreak = localStorage.getItem("bestStreak") 
+      ? parseInt(localStorage.getItem("bestStreak")) 
       : 0;
 
     const badgeEl = document.getElementById("badge");
     const pokemonImg = document.getElementById("pokemonImg");
+    const guessInput = document.getElementById("guess");
+    const guessButton = document.getElementById("guessButton");
+    const nextButton = document.getElementById("nextButton");
+
+    let guessed = false; // track if guessed or skipped
 
     async function loadPokemonList() {
       try {
         const response = await fetch("./public/pokemon.txt");
         const text = await response.text();
-        pokemonList = text
-          .split(/\r?\n/)
-          .map(line => line.trim())
-          .filter(line => line.length > 0);
-
+        pokemonList = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
         document.getElementById("bestStreak").textContent = bestStreak;
         nextPokemon();
       } catch (err) {
@@ -204,23 +202,25 @@
       silhouetteIndex = Math.floor(Math.random() * 4);
       currentSuffix = `_${silhouetteIndex}`;
 
-      pokemonImg.src =
-        `./public/Pokemon_Renders/${currentPokemon}/silhouettes/${currentPokemon}${currentSuffix}.png`;
+      pokemonImg.src = `./public/Pokemon_Renders/${currentPokemon}/silhouettes/${currentPokemon}${currentSuffix}.png`;
 
-      // Hide badge and reset shake
+      // Reset UI
       badgeEl.style.opacity = 0;
       pokemonImg.classList.remove("shake");
-
-      document.getElementById("guess").value = "";
-      document.getElementById("guess").focus();
+      guessInput.value = "";
+      guessInput.disabled = false;
+      guessButton.disabled = false;
+      nextButton.textContent = "Skip";
+      guessed = false;
+      guessInput.focus();
     }
 
     function checkGuess() {
-      const guess = document.getElementById("guess").value.trim().toLowerCase();
+      if (guessed) return;
 
+      const guess = guessInput.value.trim().toLowerCase();
       if (guess === currentPokemon.toLowerCase()) {
-        pokemonImg.src =
-          `./public/Pokemon_Renders/${currentPokemon}/${currentPokemon}${currentSuffix}.png`;
+        pokemonImg.src = `./public/Pokemon_Renders/${currentPokemon}/${currentPokemon}${currentSuffix}.png`;
 
         streak++;
         document.getElementById("streak").textContent = streak;
@@ -231,36 +231,46 @@
           document.getElementById("bestStreak").textContent = bestStreak;
         }
 
-        // Show badge
         badgeEl.style.opacity = 1;
         badgeEl.classList.remove("badge");
-        void badgeEl.offsetWidth; // restart animation
+        void badgeEl.offsetWidth;
         badgeEl.classList.add("badge");
-
-        setTimeout(() => {
-          badgeEl.style.opacity = 0;
-        }, 1000);
+        setTimeout(() => badgeEl.style.opacity = 0, 1000);
 
         launchConfetti();
+
+        guessInput.disabled = true;
+        guessButton.disabled = true;
+        nextButton.textContent = "Next";
+        guessed = true;
       } else {
         streak = 0;
         document.getElementById("streak").textContent = streak;
-
         pokemonImg.classList.remove("shake");
         void pokemonImg.offsetWidth;
         pokemonImg.classList.add("shake");
       }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      badgeEl.style.opacity = 0; // ensure hidden on load
-      loadPokemonList();
+    nextButton.addEventListener("click", () => {
+      if (!guessed && nextButton.textContent === "Skip") {
+        // Reveal current Pokémon
+        pokemonImg.src = `./public/Pokemon_Renders/${currentPokemon}/${currentPokemon}${currentSuffix}.png`;
+        guessInput.disabled = true;
+        guessButton.disabled = true;
+        nextButton.textContent = "Next";
+        guessed = true;
+      } else {
+        nextPokemon();
+      }
+    });
 
-      document.getElementById("guess").addEventListener("keydown", event => {
-        if (event.key === "Enter") {
-          checkGuess();
-        }
-      });
+    guessButton.addEventListener("click", checkGuess);
+    guessInput.addEventListener("keydown", e => { if(e.key==="Enter") checkGuess(); });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      badgeEl.style.opacity = 0;
+      loadPokemonList();
     });
 
     // Confetti
@@ -272,35 +282,35 @@
       confettiCanvas.width = window.innerWidth;
       confettiCanvas.height = window.innerHeight;
       confettiParticles = [];
-      for (let i = 0; i < 150; i++) {
+      for (let i=0;i<150;i++){
         confettiParticles.push({
-          x: Math.random() * confettiCanvas.width,
-          y: Math.random() * confettiCanvas.height - confettiCanvas.height,
-          r: Math.random() * 6 + 4,
-          d: Math.random() * 30,
-          color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-          tilt: Math.random() * 10 - 10,
-          tiltAngleIncremental: Math.random() * 0.07 + 0.05
+          x: Math.random()*confettiCanvas.width,
+          y: Math.random()*confettiCanvas.height - confettiCanvas.height,
+          r: Math.random()*6+4,
+          d: Math.random()*30,
+          color: `hsl(${Math.random()*360}, 100%, 50%)`,
+          tilt: Math.random()*10-10,
+          tiltAngleIncremental: Math.random()*0.07+0.05
         });
       }
       requestAnimationFrame(drawConfetti);
-      setTimeout(() => confettiParticles = [], 1000);
+      setTimeout(() => confettiParticles=[], 1000);
     }
 
     function drawConfetti() {
-      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-      confettiParticles.forEach(p => {
+      ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+      confettiParticles.forEach(p=>{
         ctx.beginPath();
-        ctx.lineWidth = p.r / 2;
-        ctx.strokeStyle = p.color;
-        ctx.moveTo(p.x + p.tilt + p.r / 4, p.y);
-        ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 4);
+        ctx.lineWidth=p.r/2;
+        ctx.strokeStyle=p.color;
+        ctx.moveTo(p.x+p.tilt+p.r/4,p.y);
+        ctx.lineTo(p.x+p.tilt,p.y+p.tilt+p.r/4);
         ctx.stroke();
         p.tilt += p.tiltAngleIncremental;
-        p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
-        if (p.y > confettiCanvas.height) p.y = -10;
+        p.y += (Math.cos(p.d)+3+p.r/2)/2;
+        if(p.y>confettiCanvas.height) p.y=-10;
       });
-      if (confettiParticles.length > 0) requestAnimationFrame(drawConfetti);
+      if(confettiParticles.length>0) requestAnimationFrame(drawConfetti);
     }
 
     window.addEventListener('resize', () => {
