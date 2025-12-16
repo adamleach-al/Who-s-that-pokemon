@@ -40,7 +40,6 @@
   </style>
 </head>
 <body>
-
   <h1>Who's That Pokémon?</h1>
   <img id="pokemonImg" />
   <div>
@@ -51,28 +50,37 @@
   <button onclick="nextPokemon()">Next</button>
 
   <script>
-    const pokemonList = [
-      "Diglett",
-      // Add more Pokémon here
-    ];
-
+    let pokemonList = [];
     let currentPokemon = "";
     let silhouetteIndex = 0;
     let currentSuffix = "";
 
+    // Load Pokémon names from public/pokemon.txt
+    async function loadPokemonList() {
+      try {
+        const response = await fetch('./public/pokemon.txt'); // relative path
+        const text = await response.text();
+        pokemonList = text.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+        nextPokemon();
+      } catch (err) {
+        console.error('Failed to load pokemon.txt', err);
+      }
+    }
+
     function nextPokemon() {
+      if (!pokemonList.length) return;
+
       let next;
       do {
         next = pokemonList[Math.floor(Math.random() * pokemonList.length)];
       } while (next === currentPokemon && pokemonList.length > 1);
 
       currentPokemon = next;
-
-      silhouetteIndex = Math.floor(Math.random() * 4);
-      currentSuffix = silhouetteIndex === 0 ? "" : `_${silhouetteIndex}`;
+      silhouetteIndex = Math.floor(Math.random() * 4); // 0 to 3
+      currentSuffix = `_${silhouetteIndex}`;           // Always use _0, _1, etc.
 
       document.getElementById("pokemonImg").src =
-        `Pokemon_Renders/${currentPokemon}/silhouettes/${currentPokemon}${currentSuffix}.png`;
+        `./public/Pokemon_Renders/${currentPokemon}/silhouettes/${currentPokemon}${currentSuffix}.png`;
 
       document.getElementById("result").textContent = "";
       document.getElementById("guess").value = "";
@@ -83,8 +91,9 @@
       const guess = document.getElementById("guess").value.trim().toLowerCase();
 
       if (guess === currentPokemon.toLowerCase()) {
+        // Show full image (same suffix)
         document.getElementById("pokemonImg").src =
-          `Pokemon_Renders/${currentPokemon}/${currentPokemon}${currentSuffix}.png`;
+          `./public/Pokemon_Renders/${currentPokemon}/${currentPokemon}${currentSuffix}.png`;
         document.getElementById("result").textContent = "Correct!";
       } else {
         document.getElementById("result").textContent = "Try again!";
@@ -92,13 +101,12 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      nextPokemon();
+      loadPokemonList();
+
       document.getElementById("guess").addEventListener("keydown", function(event) {
         if (event.key === "Enter") checkGuess();
       });
     });
-
   </script>
-
 </body>
 </html>
