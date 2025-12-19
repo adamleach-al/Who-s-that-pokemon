@@ -210,7 +210,7 @@ button:hover {
 .checklist label {
   display: flex;           /* inline-flex also works */
   align-items: flex-start;     /* vertically center checkbox and text */
-  gap: 0.5rem;             /* space between checkbox and label text */
+  gap: 0.1rem;             /* space between checkbox and label text */
   width: auto;             /* don’t stretch */
   white-space: nowrap;     /* prevent text wrapping */
   cursor: pointer;
