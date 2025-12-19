@@ -248,3 +248,33 @@ label {
   display: none;
   z-index: 1000;
 }
+
+@media (max-width: 480px) {
+  .corner-panel {
+    width: 90vw;             /* Almost full width on small screens */
+    right: 5vw;              /* Centered with some margin */
+    padding: 1rem 1.2rem;    /* Larger padding for touch */
+    font-size: 1rem;         /* Slightly bigger font */
+  }
+
+  .corner-panel h3 {
+    font-size: 1.1rem;       /* Bigger headings */
+  }
+
+  .corner-panel details summary {
+    font-size: 1rem;         /* Easier to tap */
+  }
+
+  .corner-panel label {
+    font-size: 1rem;         /* Larger labels */
+  }
+
+  .corner-panel ul {
+    padding-left: 1.2rem;    /* More space for readability */
+  }
+
+  .corner-info {
+    padding: 8px 16px;       /* Slightly bigger button for touch */
+    font-size: 1rem;
+  }
+}
