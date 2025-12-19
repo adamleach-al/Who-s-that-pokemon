@@ -268,17 +268,11 @@ label {
   }
 
   .corner-info {
-    top: auto;
-    bottom: 12px;
-    right: 12px;
     font-size: 1rem;
     padding: 10px 16px;
   }
 
   .corner-panel {
-    top: auto;
-    bottom: 0;
-    right: 0;
     width: 100%;
     max-width: none;
     border-radius: 16px 16px 0 0;
