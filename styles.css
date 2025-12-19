@@ -176,16 +176,19 @@ button:hover {
    Settings Panel
    ========================= */
 .corner-panel {
-  position: fixed;
-  top: 52px;
+  position: fixed;         /* fixed to viewport */
+  top: 52px;               /* below the Settings button */
   right: 12px;
-  width: 260px;
+  width: auto;             /* let children size naturally */
+  max-width: 260px;        /* cap width */
+  padding: 0.75rem;
   background: #fff;
   border-radius: 12px;
-  padding: 0.75rem;
   box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-  font-size: 0.85rem;
-  display: none;
+  display: none;           /* start hidden */
+  flex-direction: column;
+  align-items: flex-start; /* stack items left */
+  gap: 0.5rem;
   z-index: 1100;
 }
 
@@ -195,89 +198,60 @@ button:hover {
 }
 
 .corner-panel hr {
-  margin: 0.5rem 0;
+  width: 100%;
   border: none;
   border-top: 1px solid #ddd;
-}
-
-.corner-panel details summary {
-  cursor: pointer;
-  color: #555;
-  font-size: 0.85rem;
+  margin: 0.5rem 0;
 }
 
 /* =========================
-   Settings Toggles
+   Include Forms Toggle & Checklist Labels
    ========================= */
-label {
-  display: block;
-  font-size: 0.85rem;
-  color: #555;
-  margin-bottom: 0.4rem;
+.checklist-item,
+.checklist label {
+  display: flex;           /* inline-flex also works */
+  align-items: center;     /* vertically center checkbox and text */
+  gap: 0.5rem;             /* space between checkbox and label text */
+  width: auto;             /* don’t stretch */
+  white-space: nowrap;     /* prevent text wrapping */
+  cursor: pointer;
+  margin: 0;
 }
 
-.forms-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
+.checklist {
+  display: flex;
+  flex-direction: column;  /* stack items vertically */
+  align-items: flex-start; /* snap all items left */
+  gap: 0.3rem;
+  padding: 0;
+  margin: 0;
 }
-
-.forms-toggle span {
-  font-size: 0.85rem;
-}
-
 /* =========================
    Excluded Forms List
    ========================= */
-.corner-panel ul {
-  display: flex;
-  flex-direction: column; /* stack items vertically */
+.corner-panel details ul {
   padding-left: 1rem;
   margin: 0.4rem 0 0;
 }
 
-.corner-panel li {
+.corner-panel details li {
   margin-bottom: 0.3rem;
-  font-size: 0.85rem; /* default size */
 }
 
 /* =========================
-   Settings Backdrop
+   Forms Toggle Wrapper
    ========================= */
-#settingsBackdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: none;
-  z-index: 1000;
+.forms-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
 }
 
-@media (max-width: 600px) {
-  .corner-panel {
-    width: 90vw;             /* Almost full width on small screens */
-    right: 5vw;              /* Centered with some margin */
-    padding: 1rem 1.2rem;    /* Larger padding for touch */
-    font-size: 1rem;         /* Slightly bigger font */
-  }
+.forms-toggle input[type="checkbox"] {
+  margin: 0;
+}
 
-  .corner-panel h3 {
-    font-size: 1.1rem;       /* Bigger headings */
-  }
-
-  .corner-panel details summary {
-    font-size: 1rem;         /* Easier to tap */
-  }
-
-  .corner-panel label {
-    font-size: 1rem;         /* Larger labels */
-  }
-
-  .corner-panel ul {
-    padding-left: 1.2rem;    /* More space for readability */
-  }
-
-  .corner-info {
-    padding: 8px 16px;       /* Slightly bigger button for touch */
-    font-size: 1rem;
-  }
+.forms-toggle span {
+  font-size: 0.85rem;
 }
